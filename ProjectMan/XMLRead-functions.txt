@@ -1,0 +1,35 @@
+    Private Function ReadXMLProjectInfo(ByRef projectPath)
+        Dim xDoc As New XmlDocument
+        Dim actualFilePath As String = projectPath & "\" & infoFileName
+        Dim projectInfo As New ProjectInfo
+        Try
+            xDoc.Load(actualFilePath)
+            Dim nodeList As XmlNodeList = xDoc.GetElementsByTagName("ProjectInfo")
+            Dim node As XmlNode = nodeList.Item(0)
+            projectInfo = New ProjectInfo()
+            projectInfo.Title = node.Item("Title").InnerText
+            projectInfo.Description = node.Item("Description").InnerText
+            projectInfo.DateStarted = node.Item("DateStarted").InnerText
+            projectInfo.Path = projectPath
+            Return projectInfo
+        Catch ex As Exception
+            'MsgBox("Unable to find " & infoFileName)
+        End Try
+        Return projectInfo ' Return an Empty projectInfo 
+    End Function
+
+
+    Private Sub GenerateInfoFile(projectInfo As ProjectInfo)
+        Dim infoFile As String = projectInfo.Path & "\" & infoFileName
+        Try
+            Console.WriteLine("InfoFile: " & infoFile)
+            Dim serializer As New System.Xml.Serialization.XmlSerializer(GetType(ProjectInfo))
+            Dim file As New System.IO.StreamWriter(infoFile)
+            serializer.Serialize(file, projectInfo)
+            file.Close()
+        Catch ex As Exception
+
+            MsgBox("Unable to create info file for " & projectInfo.Title & "'", MsgBoxStyle.Exclamation)
+            Exit Sub
+        End Try
+    End Sub
